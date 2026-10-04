@@ -1,0 +1,18 @@
+0 0 0 0 0 NoData / Unclassified
+1 65 182 196 255 Swamp
+2 0 90 50 255 Mangrove
+3 161 217 155 255 Closed Savannah
+4 8 81 156 255 Water
+5 223 194 125 255 Shrub Crop
+6 140 81 10 255 Mining
+7 107 174 214 255 Seasonally Flooded Woody
+8 255 72 190 255 Tree Crop Plantation
+9 255 237 111 255 Annual Herbaceous Cultivation
+10 49 130 189 255 Permanently Flooded Woody
+11 254 204 92 255 Open Savannah
+12 253 141 60 255 Open Low Shrubland
+13 65 171 93 255 Open Forest
+14 0 68 27 255 Closed Forest
+15 227 26 28 255 Built up
+16 255 255 178 255 Beaches
+17 115 115 115 255 Bare Rocks

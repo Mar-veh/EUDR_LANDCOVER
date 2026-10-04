@@ -1,0 +1,126 @@
+{
+    "low_confidence_threshold": 0.6,
+    "n_bins": 10,
+    "levels": {
+        "polygon_mean": "one mean-embedding prediction per held-out polygon",
+        "raw_pixel_polygon_weighted": "every raw pixel of every held-out polygon, each polygon weighted equally",
+        "raw_pixel_micro": "every raw pixel of every held-out polygon, each pixel weighted equally"
+    },
+    "models": {
+        "TabPFN-3.5": {
+            "polygon_mean": {
+                "ece": 0.044013499182725166,
+                "threshold": 0.6,
+                "share_below": 0.17295597484276728,
+                "accuracy_below": 0.4909090909090909,
+                "accuracy_at_or_above": 0.9049429657794676
+            },
+            "raw_pixel_polygon_weighted": {
+                "ece": 0.039688490179550055,
+                "threshold": 0.6,
+                "share_below": 0.22151799038980607,
+                "accuracy_below": 0.5172798683100712,
+                "accuracy_at_or_above": 0.9008656564218845
+            },
+            "raw_pixel_micro": {
+                "ece": 0.0647247601578219,
+                "threshold": 0.6,
+                "share_below": 0.19827445207719988,
+                "accuracy_below": 0.6264751036869,
+                "accuracy_at_or_above": 0.932226585743187
+            }
+        },
+        "Random Forest": {
+            "polygon_mean": {
+                "ece": 0.26169811320754716,
+                "threshold": 0.6,
+                "share_below": 0.5974842767295597,
+                "accuracy_below": 0.6894736842105263,
+                "accuracy_at_or_above": 0.96875
+            },
+            "raw_pixel_polygon_weighted": {
+                "ece": 0.2512288314813437,
+                "threshold": 0.6,
+                "share_below": 0.6360878973476928,
+                "accuracy_below": 0.6370368176339668,
+                "accuracy_at_or_above": 0.9680501291843975
+            },
+            "raw_pixel_micro": {
+                "ece": 0.2614351532541024,
+                "threshold": 0.6,
+                "share_below": 0.5032916257769054,
+                "accuracy_below": 0.6379647307867643,
+                "accuracy_at_or_above": 0.945809608744369
+            }
+        },
+        "XGBoost": {
+            "polygon_mean": {
+                "ece": 0.0697442558623335,
+                "threshold": 0.6,
+                "share_below": 0.2861635220125786,
+                "accuracy_below": 0.5164835164835165,
+                "accuracy_at_or_above": 0.8898678414096917
+            },
+            "raw_pixel_polygon_weighted": {
+                "ece": 0.0383057128201726,
+                "threshold": 0.6,
+                "share_below": 0.3113961637388556,
+                "accuracy_below": 0.46012262364574485,
+                "accuracy_at_or_above": 0.8632991648853175
+            },
+            "raw_pixel_micro": {
+                "ece": 0.03012421271036197,
+                "threshold": 0.6,
+                "share_below": 0.23673354414276887,
+                "accuracy_below": 0.4127451733005796,
+                "accuracy_at_or_above": 0.8789866546030309
+            }
+        },
+        "Logistic Regression": {
+            "polygon_mean": {
+                "ece": 0.05403081863728422,
+                "threshold": 0.6,
+                "share_below": 0.18238993710691823,
+                "accuracy_below": 0.46551724137931033,
+                "accuracy_at_or_above": 0.8846153846153846
+            },
+            "raw_pixel_polygon_weighted": {
+                "ece": 0.04233298890053738,
+                "threshold": 0.6,
+                "share_below": 0.1788576897391644,
+                "accuracy_below": 0.4816381698516961,
+                "accuracy_at_or_above": 0.8478806566099623
+            },
+            "raw_pixel_micro": {
+                "ece": 0.04321620870835588,
+                "threshold": 0.6,
+                "share_below": 0.1657716352269836,
+                "accuracy_below": 0.47259297832104585,
+                "accuracy_at_or_above": 0.8779034620977361
+            }
+        },
+        "kNN (k=5)": {
+            "polygon_mean": {
+                "ece": 0.0597392911498607,
+                "threshold": 0.6,
+                "share_below": 0.24842767295597484,
+                "accuracy_below": 0.5569620253164557,
+                "accuracy_at_or_above": 0.8870292887029289
+            },
+            "raw_pixel_polygon_weighted": {
+                "ece": 0.05291376348361483,
+                "threshold": 0.6,
+                "share_below": 0.2505665780372413,
+                "accuracy_below": 0.43115908532736585,
+                "accuracy_at_or_above": 0.8638523584802956
+            },
+            "raw_pixel_micro": {
+                "ece": 0.12731910390145768,
+                "threshold": 0.6,
+                "share_below": 0.206368353142151,
+                "accuracy_below": 0.4348725851725466,
+                "accuracy_at_or_above": 0.9095010061168469
+            }
+        }
+    }
+}
