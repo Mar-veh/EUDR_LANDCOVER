@@ -1,5 +1,7 @@
 # Ghana EUDR Tree-Crop Map: web portal
 
+**Live:** https://eudr-ghana.vercel.app
+
 A web map of where Ghana's 2025 tree crops (the merged Tree Crop Plantation class from TabPFN-3.5) overlap land that was forest on 31 December 2020, the EUDR cut-off. The 2020 forest baseline is the EU's JRC Global Forest Cover 2020 V4. The overlap is split by the model's calibrated confidence.
 
 ## Run it
@@ -18,8 +20,7 @@ The server reads `PRIVATE_KEY`, `SERVICE_EMAIL`, `PROJECT_ID`, `PREDICTED_CLASSC
 ## Deploy on Vercel
 
 1. In Vercel, import the GitHub repository and choose **Import single project** next to `web_map` (FastAPI). The Root Directory becomes `web_map`.
-2. Under Environment Variables, add `PROJECT_ID`, `SERVICE_EMAIL`, `PRIVATE_KEY`, `PREDICTED_CLASSCODE` and `PREDICTED_CONFIDENCE`, copied from `.env`. The private key can be pasted as it appears there, quotes and `
-` included.
+2. Under Environment Variables, add `PROJECT_ID`, `SERVICE_EMAIL`, `PRIVATE_KEY`, `PREDICTED_CLASSCODE` and `PREDICTED_CONFIDENCE`, copied from `.env`. The private key can be pasted as it appears there, quotes and `\n` included.
 3. Deploy. Vercel serves `public/` from its CDN and runs the FastAPI app in `app/main.py` for `/api/...`.
 
 Every visitor's map tiles and pixel clicks are computed by Earth Engine under the project in `PROJECT_ID`.

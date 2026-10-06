@@ -2,19 +2,20 @@
 
 **Where does cocoa end and forest begin? A 10 m answer for all of Ghana.**
 
+**Live map: [eudr-ghana.vercel.app](https://eudr-ghana.vercel.app)**
+
 Ghana is the world's second-largest cocoa producer, and cocoa farming has been one of the leading drivers of forest loss in the country's high forest zone. Under the EU Deforestation Regulation (EUDR), cocoa may only be placed on the EU market if it was not produced on land deforested after 31 December 2020. The same rule covers rubber and oil palm, two other tree crops grown in Ghana.
 
 Meeting that rule means knowing, plot by plot, where tree-crop farms end and natural forest begins. Without affordable national evidence, the burden of proof falls hardest on the smallholder farmers who grow most of Ghana's cocoa.
 
 This project draws that line for the whole country. It is a wall-to-wall, 10 m land-cover map of Ghana for 2025 that separates **tree-crop plantations** (cocoa, cashew, rubber, oil palm, mango) from **closed and open natural forest**. It also maps 14 further classes, from mining scars and wetlands to savannah, cropland and settlements.
 
-- **Tree crops vs. forest:** on held-out field polygons, 94 of 99 tree-crop polygons were classified as tree crops, and only one was mistaken for forest. 23 of 25 forest polygons were recognised as forest.
-- **Cocoa:** identified in 47 of 49 polygons, covering 95.5% of their pixels. The published legend groups the tree crops as one class, while the underlying 23-class prediction keeps cocoa separate.
+- **EUDR screening:** the [web map](https://eudr-ghana.vercel.app) compares the 2025 tree crops with the EU's own 2020 forest map (JRC Global Forest Cover 2020, V4). It shows where tree crops sit on land that was forest at the EUDR cut-off date, split by the model's confidence.
 - **Confidence:** every pixel carries a calibrated confidence value, so users can see where the map can be trusted and where a field check is needed.
-- **A baseline for change:** the map is a 2025 snapshot. The same pipeline can be applied to the 2020 embeddings, the EUDR cut-off year, to show where tree crops have replaced forest.
 
 The map is built with [TabPFN-3.5](https://huggingface.co/Prior-Labs/tabpfn_3_5) (Prior Labs) for the [TabPFN-3.5 Hackathon](https://platform.priorlabs.ai/hackathon-3.5). TabPFN-3.5 learns the entire classifier in context from 318 field polygons: one 1.6-second fit, with no gradient training and no tuning. It then labels 2.46 billion pixels of Google Satellite Embeddings. Under identical Leave-One-Polygon-Out cross-validation, it outperforms Random Forest, XGBoost, logistic regression and k-nearest neighbours on every accuracy metric.
 
+[![Live map](https://img.shields.io/badge/live%20map-eudr--ghana.vercel.app-d03b3b)](https://eudr-ghana.vercel.app)
 ![Model](https://img.shields.io/badge/model-TabPFN--3.5-blue)
 ![License](https://img.shields.io/badge/license-Apache%202.0-green)
 
@@ -23,8 +24,8 @@ The map is built with [TabPFN-3.5](https://huggingface.co/Prior-Labs/tabpfn_3_5)
 ## Highlights
 
 - **Best of five classifiers under one protocol.** All models are scored by the same Leave-One-Polygon-Out runner. TabPFN-3.5 reaches **83.3% accuracy and 80.7% balanced accuracy**; the best baseline reaches 80.8% and 76.3%. It also has the lowest log loss (0.545 vs. 0.727) and Brier score (0.249 vs. 0.294).
-- **Strongest where data is thinnest.** On the 12 classes backed by only 3-9 polygons each, TabPFN-3.5's mean recall is **81.0%**, the same as on the larger classes (80.4%). The baselines reach 64-76%.
-- **Calibrated confidence.** On held-out pixels, predictions with confidence ≥ 0.6 are correct **90%** of the time, and those below 0.6 only **52%** of the time. Pixel-level calibration error is 0.040.
+- **Strongest where field data is scarce.** Twelve of the 23 land-cover classes had only 3 to 9 field polygons each to learn from. TabPFN-3.5 recognises these rare classes as well as the common ones (**81%** vs. 80% recall), while the other models manage only 64-76% on them.
+- **A map that knows when it's unsure.** Every pixel comes with a confidence score you can trust. Where TabPFN-3.5 is confident (0.6 or more), the map was right **90%** of the time in testing; where it isn't, only about half the time. Users see at a glance which areas they can rely on and which to check in the field.
 - **National scale.** The map covers 238,836 km² of land at 10 m. It comes from 408 embedding tiles (~320 GB) with resumable multi-GPU inference.
 - **The training set is a 438 KB CSV.** [`data/polygon_means.csv`](data/polygon_means.csv) holds the model's entire training context, so [`quickstart.py`](quickstart.py) refits TabPFN-3.5 and classifies a 10 × 10 km area in about two minutes on one GPU. It needs neither the 615 MB training file nor the model file, and it reproduces the national prediction exactly for every one of the area's 1,048,576 pixels.
 
@@ -79,7 +80,7 @@ TabPFN-3.5 ranks first on every accuracy metric and on both proper scoring rules
 | 17-class legend: accuracy / balanced accuracy | 84.3% / 80.3% |
 | 17-class legend: raw-pixel accuracy, per pixel / per polygon | 87.8% / 82.7% |
 
-The per-pixel figure (87.2%) weights every held-out pixel equally. Large, homogeneous polygons therefore dominate it, and Water alone is 33.6% of held-out pixels. The per-polygon and per-class figures give every polygon or class equal weight. Per-class results with Wilson 95% confidence intervals are in `outputs_tabpfn35_polygon/polygon_class_summary.csv`.
+The per-pixel figure (87.2%) weights every held-out pixel equally. The per-polygon and per-class figures give every polygon or class equal weight. Per-class results with Wilson 95% confidence intervals are in `outputs_tabpfn35_polygon/polygon_class_summary.csv`.
 
 - **Strongest classes:** cocoa (47 of 49 polygons), oil palm (12/12), rubber (7/7), mangrove (45/49), built-up (14/15) and cashew (18/20).
 - **Weakest classes:** rice (3/9), open low shrubland (6/14), shrub crop (8/15) and closed forest (5/8). Most of their errors fall on spectrally similar neighbours: other annual crops, shrubland and open forest.
@@ -125,7 +126,7 @@ Mapped area, measured on the full-resolution map inside the Ghana outline:
 | | Beaches | Beach | 121 | 0.05% |
 | | **Total** | | **238,836** | |
 
-These areas are pixel counts of the classified map, not design-based area estimates; see [Limitations](#limitations).
+These areas are pixel counts of the classified map, not design-based area estimates.
 
 ### Confidence map
 
@@ -137,6 +138,19 @@ These areas are pixel counts of the classified map, not design-based area estima
 Across the national map, mean confidence is 0.58 and 56% of pixels fall below 0.6. That figure comes from the 8.5 million pixels displayed on the confidence map. On held-out pixels of the field polygons, by contrast, only 22% fall below 0.6. The training polygons are clean, single-class examples, while the wall-to-wall map also contains mixed pixels, transitions and land covers that 318 polygons cannot fully represent.
 
 The LOO accuracies above therefore describe pixels like those in the training polygons. The confidence layer shows where the map departs from them, and those are the places where additional field polygons would improve it most.
+
+## Web map
+
+**[eudr-ghana.vercel.app](https://eudr-ghana.vercel.app)** puts the map to work for EUDR screening.
+
+![Web map demo: EUDR overlap, zooming in, clicking a spot, land cover with fade and transparency, the guided tour](docs/web_map_demo.gif)
+
+- **EUDR overlap:** tree crop on land that was forest in 2020, in red where the model is confident (0.6 or more) and in amber where it is less sure, over a green tint of the 2020 forest.
+- **Land cover:** the 17 classes, with a switch that fades areas where the model is unsure and a transparency slider.
+- **Click any spot:** the 2025 class (with the detailed crop, such as cocoa or cashew), its confidence, and whether it is in the 2020 forest baseline.
+- **Map/Satellite switch** and a **"Show me around"** guided tour.
+
+Map tiles are rendered live by Google Earth Engine from the published assets, behind a small FastAPI backend hosted on Vercel. See [`web_map/README.md`](web_map/README.md) to run or deploy it.
 
 ## Quick-start
 
@@ -226,10 +240,11 @@ Images/*.tif ──────────▶ Predict_TabPFN35_PolygonLevel.ipy
 | `data/natural_earth_west_africa.geojson` | Natural Earth 1:10m country boundaries for West Africa (public domain). |
 | `new_class.xlsx` | Mapping from the 23 field classes to the 17-class legend. |
 | `color_code.txt` | Legend color table (`code R G B A name`). |
+| `web_map/` | The EUDR screening web map (FastAPI and Leaflet over Google Earth Engine), live at [eudr-ghana.vercel.app](https://eudr-ghana.vercel.app). See `web_map/README.md`. |
 | `docs/` | Figures shown in this README (copies of notebook and quick-start outputs). |
 | `demo/demo_aoi_dunkwa.tif` | Quick-start input: 64-band embeddings of a 10 × 10 km area (download from Google Drive). |
 | `Training_Samples.csv`, `Images/` | Input data, downloaded separately (see Data). |
-| `requirements.txt`, `.env.example`, `LICENSE` | Environment, API-token template, Apache 2.0 license. |
+| `requirements.txt`, `.env.example`, `LICENSE` | Environment; settings template (TabPFN token, plus the Earth Engine service account and asset ids for the web map); Apache 2.0 license. |
 
 ## Data
 
@@ -256,9 +271,10 @@ Images/*.tif ──────────▶ Predict_TabPFN35_PolygonLevel.ipy
 
 ## Limitations
 
-- **LOO accuracy describes pixels like the training polygons.** The map-wide confidence shows that large parts of the landscape are less certain. A design-based accuracy assessment, with an independent stratified random sample and area-adjusted estimates, would quantify the map's accuracy and class areas directly.
-- **Rare and similar classes.** Rare classes (3-9 polygons) and spectrally similar classes (shrub crop, open low shrubland, rice) are the least reliable. More field polygons for them are the most direct improvement.
+- **More field samples needed.** Large parts of the landscape are still uncertain, especially where crops, shrubland and savannah mix. More samples from field validation would make the map more certain there.
 - **Single year.** The map is a single-year snapshot (2025 embeddings).
+- **EUDR covers specific commodities.** The regulation covers cattle, cocoa, coffee, oil palm, rubber, soya and wood. The map's Tree Crop Plantation class also includes cashew and mango, which EUDR does not cover, so not every overlap in the web map involves an EUDR commodity. The web map's pixel popup names the detailed crop, so the two can be told apart.
+- **The overlap depends on the EU's 2020 forest map.** JRC Global Forest Cover 2020 counts land with at least 10% tree cover as forest, including woodland savannah and some shaded cocoa. Overlaps are therefore leads for field checks, not proof of deforestation.
 
 ## Credits & acknowledgements
 
@@ -266,6 +282,8 @@ Images/*.tif ──────────▶ Predict_TabPFN35_PolygonLevel.ipy
 - **[TGI RAILS](https://docs.ncsa.illinois.edu/systems/tgirails/).** This research used the TGI RAILS advanced compute and data resource, which is supported by the National Science Foundation (award OAC-2232860) and the Taylor Geospatial Institute. All GPU compute (NVIDIA H100) for model evaluation and national-scale inference ran on TGI RAILS.
 - **[Google Satellite Embeddings](https://developers.google.com/earth-engine/datasets/catalog/GOOGLE_SATELLITE_EMBEDDING_V1_ANNUAL)** (AlphaEarth Foundations, Google DeepMind / Google Earth Engine), the 64-dimensional annual embedding dataset used as model input.
 - **[Natural Earth](https://www.naturalearthdata.com/)**, public-domain country boundaries for the cartographic map.
+- **[EC JRC Global Forest Cover 2020](https://developers.google.com/earth-engine/datasets/catalog/JRC_GFC2020_V4)** (version 4), the EU's 2020 forest baseline used in the web map.
+- **Esri** basemaps in the web map: Light and Dark Gray Canvas (Esri, HERE, Garmin, OpenStreetMap contributors) and World Imagery (Esri, Vantor, Earthstar Geographics).
 
 ## Author
 
