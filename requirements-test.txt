@@ -1,0 +1,10 @@
+# Test suite: checks the numbers reported in README.md against the saved results
+# and the evaluation code on small made-up data. No GPU, TabPFN or large data needed.
+#
+#   pip install -r requirements-test.txt
+#   pytest tests
+numpy>=1.26
+pandas>=2.2
+scikit-learn>=1.5
+openpyxl>=3.1
+pytest>=8.0

@@ -18,6 +18,7 @@ The map is built with [TabPFN-3.5](https://huggingface.co/Prior-Labs/tabpfn_3_5)
 [![Live map](https://img.shields.io/badge/live%20map-eudr--ghana.vercel.app-d03b3b)](https://eudr-ghana.vercel.app)
 ![Model](https://img.shields.io/badge/model-TabPFN--3.5-blue)
 ![License](https://img.shields.io/badge/license-Apache%202.0-green)
+[![Tests](https://github.com/Mar-veh/EUDR_LANDCOVER/actions/workflows/tests.yml/badge.svg)](https://github.com/Mar-veh/EUDR_LANDCOVER/actions/workflows/tests.yml)
 
 ![Ghana Land Cover 2025](docs/landcover_tabpfn35_map_preview.png)
 
@@ -152,6 +153,15 @@ The LOO accuracies above therefore describe pixels like those in the training po
 
 Map tiles are rendered live by Google Earth Engine from the published assets, behind a small FastAPI backend hosted on Vercel. See [`web_map/README.md`](web_map/README.md) to run or deploy it.
 
+## Checking the reported numbers
+
+A small test suite recomputes the numbers in this README from the result files in the repository: accuracy, the baseline comparison, the rare classes, calibration and the class areas. It also checks the evaluation code on made-up data with known answers. It runs in seconds, without a GPU, a TabPFN token or the large input data, and GitHub runs it on every push.
+
+```bash
+pip install -r requirements-test.txt
+pytest tests
+```
+
 ## Quick-start
 
 The quick-start classifies a 1024 × 1024 px area (about 10 × 10 km) around Dunkwa-on-Offin: the town, mining along the Offin River, and the surrounding cocoa and tree-crop farms. It takes about two minutes on one GPU. You need a Prior Labs API token and one 417 MB file; no training data, model file or embedding tiles are required.
@@ -238,6 +248,7 @@ Images/*.tif ──────────▶ Predict_TabPFN35_PolygonLevel.ipy
 | `quickstart.py` | Classifies a small area in minutes from `data/polygon_means.csv`. |
 | `lc_eval.py` | Shared Leave-One-Polygon-Out runner, metrics, calibration, evaluation figures, raster utilities. |
 | `lc_maps.py` | Cartography: basemap, mode-resampled preview, land area by class, map layouts. |
+| `tests/` | Test suite: recomputes the README's numbers from the saved results and checks the evaluation code. |
 | `data/polygon_means.csv` | The 318 polygon-mean embeddings with class, pixel count and centroid: the complete training context. |
 | `data/natural_earth_west_africa.geojson` | Natural Earth 1:10m country boundaries for West Africa (public domain). |
 | `new_class.xlsx` | Mapping from the 23 field classes to the 17-class legend. |
@@ -246,7 +257,7 @@ Images/*.tif ──────────▶ Predict_TabPFN35_PolygonLevel.ipy
 | `docs/` | Figures shown in this README (copies of notebook and quick-start outputs). |
 | `demo/demo_aoi_dunkwa.tif` | Quick-start input: 64-band embeddings of a 10 × 10 km area (download from Google Drive). |
 | `Training_Samples.csv`, `Images/` | Input data, downloaded separately (see Data). |
-| `requirements.txt`, `requirements-lock.txt`, `.env.example`, `LICENSE` | Environment (minimum versions; exact versions of the national run); settings template (TabPFN token, plus the Earth Engine service account and asset ids for the web map); Apache 2.0 license. |
+| `requirements.txt`, `requirements-lock.txt`, `requirements-test.txt`, `.env.example`, `LICENSE` | Environment (minimum versions; exact versions of the national run; test suite); settings template (TabPFN token, plus the Earth Engine service account and asset ids for the web map); Apache 2.0 license. |
 
 ## Data
 

@@ -26,6 +26,7 @@ quickstart_output/
 __pycache__/
 *.pyc
 .ipynb_checkpoints/
+.pytest_cache/
 
 # Editors and OS
 .vscode/
