@@ -187,6 +187,8 @@ pip install -r requirements.txt        # Python 3.11; a CUDA build of torch is s
 cp .env.example .env                   # set TABPFN_TOKEN
 ```
 
+For the exact package versions of the national run (Linux, Python 3.11.16, CUDA 12.6), install `requirements-lock.txt` instead.
+
 Place `Training_Samples.csv` in the repository root and the 408 tiles in `Images/` (see [Data](#data)).
 
 1. **Training and evaluation:** run `Training_TabPFN35_PolygonLevel.ipynb` top to bottom.
@@ -244,7 +246,7 @@ Images/*.tif ──────────▶ Predict_TabPFN35_PolygonLevel.ipy
 | `docs/` | Figures shown in this README (copies of notebook and quick-start outputs). |
 | `demo/demo_aoi_dunkwa.tif` | Quick-start input: 64-band embeddings of a 10 × 10 km area (download from Google Drive). |
 | `Training_Samples.csv`, `Images/` | Input data, downloaded separately (see Data). |
-| `requirements.txt`, `.env.example`, `LICENSE` | Environment; settings template (TabPFN token, plus the Earth Engine service account and asset ids for the web map); Apache 2.0 license. |
+| `requirements.txt`, `requirements-lock.txt`, `.env.example`, `LICENSE` | Environment (minimum versions; exact versions of the national run); settings template (TabPFN token, plus the Earth Engine service account and asset ids for the web map); Apache 2.0 license. |
 
 ## Data
 
