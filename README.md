@@ -46,7 +46,7 @@ All numbers come from Leave-One-Polygon-Out cross-validation (LOO) over the 318 
 
 ### TabPFN-3.5 vs. baselines
 
-The baselines use fixed, standard settings, and TabPFN-3.5 uses its default checkpoint. No model is tuned. Configurations are listed in Section 8 of the training notebook.
+The baselines use fixed, standard settings, and TabPFN-3.5 uses its default checkpoint. No model is tuned: TabPFN-3.5 needs no tuning, and 318 polygons, with 12 classes under 10 polygons each, leave too little data for a reliable hyperparameter search. Tuned baselines are future work when there is more data. Configurations are listed in Section 8 of the training notebook.
 
 | Model | Accuracy | Balanced accuracy | Macro F1 | Raw-pixel accuracy, per polygon | Raw-pixel accuracy, per class | 17-class accuracy | Log loss ↓ | Brier ↓ | ECE, pixel ↓ |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
