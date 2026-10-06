@@ -1,7 +1,7 @@
-"""Earth Engine images behind the map layers and statistics.
+"""Earth Engine images behind the map layers and the pixel inspector.
 
-Statistics, the pixel inspector and plot reports read the classification on
-its own 10 m grid, so every number comes from the original pixels.
+The pixel inspector reads the classification on its own 10 m grid, so every
+value it reports comes from the original pixels.
 
 Map tiles are drawn from the same assets. The class asset is pyramided with
 MODE, so a zoomed-out tile pixel shows the most common class of the 10 m
@@ -19,16 +19,11 @@ import ee
 from .config import classes, settings
 from .ee_client import init
 
-CONF_BINS = 20  # confidence bins of width 0.05 in all statistics
-
-# Overlay colours, validated together for colour-vision deficiency:
-# tree crop outside 2020 forest, on 2020 forest below / at or above the
-# confidence threshold, and the 2020 forest tint.
-EUDR_PALETTE = ["2a78d6", "fab219", "d03b3b"]
+# Overlay colours, validated together for colour-vision deficiency: tree crop
+# on 2020 forest below / at or above the confidence threshold, and the 2020
+# forest tint.
+EUDR_PALETTE = ["fab219", "d03b3b"]
 FOREST_COLOR = "00441b"
-# Single-hue sequential ramp for confidence, light = low, as in the README map.
-CONFIDENCE_PALETTE = ["cde2fb", "9ec5f4", "6da7ec", "3987e5", "256abf", "184f95", "0d366b"]
-CONFIDENCE_RANGE = (0.4, 1.0)
 TILE_TTL_S = 30 * 60
 
 _ee_slots = threading.BoundedSemaphore(8)
@@ -109,23 +104,6 @@ def native() -> ee.Image:
     return ee.Image.cat([c23, lc17, confidence(), forest2020().updateMask(lc17.mask())])
 
 
-def stats_image() -> ee.Image:
-    """Pixel area (ha), confidence x area, and a group code for summing.
-
-    code = legend class x 1000 + 2020-forest flag x 100 + confidence bin (0-19)
-    """
-    n = native()
-    lc17, conf, forest = n.select("lc17"), n.select("confidence"), n.select("f2020")
-    conf_bin = conf.multiply(CONF_BINS).floor().clamp(0, CONF_BINS - 1)
-    code = lc17.multiply(1000).add(forest.multiply(100)).add(conf_bin).toInt().rename("code")
-    area = ee.Image.pixelArea().divide(10_000).rename("area_ha")
-    return ee.Image.cat([area, area.multiply(conf).rename("conf_area_ha"), code]).updateMask(lc17.mask())
-
-
-def stats_reducer() -> ee.Reducer:
-    return ee.Reducer.sum().repeat(2).group(groupField=2, groupName="code")
-
-
 # --- Map layers ----------------------------------------------------------------
 
 def landcover_layer(fade: bool) -> ee.Image:
@@ -141,24 +119,11 @@ def forest_layer() -> ee.Image:
     return forest.visualize(min=0, max=1, palette=[FOREST_COLOR, FOREST_COLOR])
 
 
-def eudr_layer(threshold: float, outside: bool) -> ee.Image:
-    """Tree crop: 1 outside 2020 forest, 2 on it below the threshold, 3 on it at or above."""
-    tree = legend17(class23()).eq(tree_crop_code())
-    forest = forest2020()
-    status = ee.Image(1).where(forest, ee.Image(2).where(confidence().gte(threshold), 3))
-    if not outside:
-        status = status.updateMask(forest)
-    return status.updateMask(tree).visualize(min=1, max=3, palette=EUDR_PALETTE)
-
-
-def confidence_layer(scope: str) -> ee.Image:
-    """Confidence of all pixels, of tree-crop pixels, or of tree crop on 2020 forest."""
-    conf = confidence()
-    if scope in ("tree", "overlap"):
-        tree = legend17(class23()).eq(tree_crop_code())
-        conf = conf.updateMask(tree.And(forest2020()) if scope == "overlap" else tree)
-    low, high = CONFIDENCE_RANGE
-    return conf.visualize(min=low, max=high, palette=CONFIDENCE_PALETTE)
+def eudr_layer(threshold: float) -> ee.Image:
+    """Tree crop on 2020 forest: 1 below the confidence threshold, 2 at or above it."""
+    tree_on_forest = legend17(class23()).eq(tree_crop_code()).And(forest2020())
+    status = ee.Image(1).where(confidence().gte(threshold), 2)
+    return status.updateMask(tree_on_forest).visualize(min=1, max=2, palette=EUDR_PALETTE)
 
 
 _tiles: dict[tuple, tuple[float, str]] = {}
@@ -170,8 +135,7 @@ def tile_url(name: str, **params) -> str:
     builders = {
         "landcover": lambda: landcover_layer(params["fade"]),
         "forest2020": forest_layer,
-        "eudr": lambda: eudr_layer(params["threshold"], params["outside"]),
-        "confidence": lambda: confidence_layer(params["scope"]),
+        "eudr": lambda: eudr_layer(params["threshold"]),
     }
     if name not in builders:
         raise KeyError(name)

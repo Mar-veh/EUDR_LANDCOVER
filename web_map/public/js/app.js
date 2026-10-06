@@ -31,7 +31,7 @@
     const seq = ++layerSeq;
     const specs = {
       data: state.mode === 'eudr'
-        ? ['eudr', { threshold: WM.source.threshold, outside: false }]
+        ? ['eudr', { threshold: WM.source.threshold }]
         : ['landcover', { fade: state.fade }],
       forest: state.mode === 'eudr' ? ['forest2020', {}] : null,
     };

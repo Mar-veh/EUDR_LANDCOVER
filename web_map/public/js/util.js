@@ -21,10 +21,7 @@
     return el;
   }
 
-  const whole = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 });
-
   const fmt = {
-    ha(v) { return `${whole.format(v)} ha`; },
     pct(v) { return `${Math.round(v * 100)}%`; },
     conf(v) { return v == null ? '—' : v.toFixed(2); },
     latlng(lat, lng) {

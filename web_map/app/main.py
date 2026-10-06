@@ -42,7 +42,7 @@ def earth_engine_error(_request, exc: ee.EEException):
 
 
 def _threshold(value: float | None) -> float:
-    """Default threshold, or the given one snapped to the 0.05 statistics grid."""
+    """Default threshold, or the given one snapped to steps of 0.05, which bounds the tile cache."""
     if value is None:
         return settings().conf_threshold
     return round(round(value * 20) / 20, 2)
@@ -62,13 +62,10 @@ def get_layer(
     name: str,
     threshold: float | None = Query(None, ge=0, le=1),
     fade: bool = False,
-    outside: bool = False,
-    scope: str = Query("all", pattern="^(all|tree|overlap)$"),
 ):
     params = {
         "landcover": {"fade": fade},
-        "eudr": {"threshold": _threshold(threshold), "outside": outside},
-        "confidence": {"scope": scope},
+        "eudr": {"threshold": _threshold(threshold)},
     }.get(name, {})
     try:
         url = layers.tile_url(name, **params)

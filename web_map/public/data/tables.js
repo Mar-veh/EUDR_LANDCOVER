@@ -448,29 +448,5 @@ window.WM_TABLES = {
     "accuracy": 0.9558220465357951
    }
   ]
- },
- "pixel_counts": {
-  "source": "predictions_tabpfn35_polygon/predicted_pixel_counts.csv",
-  "description": "Pixel counts of the raw 23-class prediction (no majority filter), summed into the 17-class legend. Includes coastal sea pixels classified as water.",
-  "total": 2461544689,
-  "by_class": {
-   "1": 41415116,
-   "2": 5212718,
-   "3": 168033847,
-   "4": 116449841,
-   "5": 223747510,
-   "6": 21493677,
-   "7": 36096137,
-   "8": 304458379,
-   "9": 612465368,
-   "10": 1598453,
-   "11": 257569972,
-   "12": 340813367,
-   "13": 190670561,
-   "14": 64380645,
-   "15": 45802705,
-   "16": 1285842,
-   "17": 30050551
-  }
  }
 };

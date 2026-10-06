@@ -45,20 +45,16 @@ The overlap is a screening indicator, not a legal determination.
 | Endpoint | Returns |
 |---|---|
 | `GET /api/config` | default threshold and the forest dataset |
-| `GET /api/layers/{eudr,forest2020,landcover,confidence}` | an Earth Engine XYZ tile URL; parameters `threshold`, `outside`, `fade`, `scope` |
+| `GET /api/layers/{eudr,forest2020,landcover}` | an Earth Engine XYZ tile URL; parameters `threshold` (eudr) and `fade` (landcover) |
 | `GET /api/point?lon=&lat=&threshold=` | the pixel inspector values |
 
 The page talks to the API only through `public/js/source.js`. Set `window.WM_API_BASE` there to point a separately hosted frontend at the API.
-
-## National and district totals (not computed yet)
-
-A national figure for the EUDR panel ("X ha of tree crop in Ghana is on 2020 forest") needs one reduction over all 2.4 billion pixels, which is too large for a live request. `scripts/district_stats.py export` runs it as an Earth Engine batch export to a table asset. `scripts/district_stats.py fetch` then writes `public/data/stats.json`, and the page picks the file up automatically. **This writes an asset to the Earth Engine project, so it only runs with the owner's approval.**
 
 ## Layout
 
 ```
 app/                    FastAPI backend: Earth Engine login, layers, pixel inspector
 public/                 the page (index.html, css/, js/, data/tables.js, vendor/leaflet/)
-scripts/build_tables.py rebuilds app/data/ and public/data/tables.js from new_class.xlsx, color_code.txt and the CSVs
-scripts/district_stats.py   national, regional and district totals (batch export, needs approval)
+scripts/build_tables.py rebuilds app/data/classes.json and public/data/tables.js from new_class.xlsx,
+                        color_code.txt and the calibration results (needs: pip install openpyxl)
 ```

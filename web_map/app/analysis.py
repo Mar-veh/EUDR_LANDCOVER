@@ -5,7 +5,7 @@ from functools import lru_cache
 
 import ee
 
-from .config import calibration, classes
+from .config import classes
 from .layers import grid, native, run, tree_crop_code
 
 
@@ -13,16 +13,6 @@ from .layers import grid, native, run, tree_crop_code
 def _lookups() -> tuple[dict, dict]:
     c = classes()
     return ({f["code"]: f for f in c["field_classes"]}, {e["code"]: e for e in c["legend"]})
-
-
-def calibration_for(conf: float) -> dict | None:
-    """Observed held-out accuracy of the calibration bin containing conf."""
-    for b in calibration()["bins"]:
-        if b["low"] <= conf < b["high"] or (conf == 1.0 and b["high"] == 1.0):
-            if b["accuracy"] is None:
-                return None
-            return {"low": b["low"], "high": b["high"], "accuracy": b["accuracy"]}
-    return None
 
 
 def eudr_status(is_tree_crop: bool, on_forest: bool, conf: float, threshold: float) -> str | None:
@@ -53,7 +43,6 @@ def point_info(lon: float, lat: float, threshold: float) -> dict:
         "field_class": {"code": c23, "name": field.get(c23, {}).get("label", str(c23))},
         "legend_class": {"code": lc["code"], "name": lc["name"], "color": lc["color"]} if lc else None,
         "confidence": conf,
-        "calibration": calibration_for(conf) if conf is not None else None,
         "forest2020": on_forest,
         "eudr": eudr_status(is_tree, on_forest, conf or 0.0, threshold),
     }

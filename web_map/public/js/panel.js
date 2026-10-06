@@ -10,24 +10,11 @@
       h('span', null, label, note ? h('small', null, note) : null));
   }
 
-  // Tree crop on 2020 forest, from the national statistics, if they have been computed.
-  function headline() {
-    const stats = WM.source.stats();
-    if (!stats) return null;
-    const sum = (a) => a.reduce((x, y) => x + y, 0);
-    const n = stats.national;
-    const onForest = sum(n.tc_forest_bins);
-    const allTree = onForest + sum(n.tc_outside_bins);
-    return h('p', { class: 'headline' }, h('b', null, fmt.ha(onForest)),
-      ` of tree crop in Ghana is on 2020 forest (${fmt.pct(onForest / allTree)} of all tree crop).`);
-  }
-
   function eudr() {
     const t = fmt.conf(WM.source.threshold);
     return [
       h('p', { class: 'panel-text' },
         'Tree crops mapped in 2025 on land that was forest at the end of 2020, the EUDR cut-off date.'),
-      headline(),
       h('ul', { class: 'legend' },
         legendItem('var(--map-high)', 'Tree crop on 2020 forest', `Model is confident (${t} or more)`),
         legendItem('var(--map-low)', 'Tree crop on 2020 forest', 'Model is less sure: check on the ground'),

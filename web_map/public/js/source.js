@@ -28,7 +28,6 @@
     error: null,
     tables: window.WM_TABLES,
     threshold: window.WM_TABLES.calibration.threshold,
-    statsData: null,
 
     async init() {
       try {
@@ -37,13 +36,6 @@
         this.connected = true;
       } catch (err) {
         this.error = err.message;
-      }
-      // National totals, written by scripts/district_stats.py once it has been run.
-      try {
-        const res = await fetch('data/stats.json');
-        this.statsData = res.ok ? await res.json() : null;
-      } catch {
-        this.statsData = null;
       }
     },
 
@@ -57,10 +49,6 @@
     async inspect(lat, lng) {
       if (!this.connected) return null;
       return request(`/api/point?${new URLSearchParams({ lon: lng, lat, threshold: this.threshold })}`);
-    },
-
-    stats() {
-      return this.statsData;
     },
   };
 })();
