@@ -13,7 +13,7 @@ This project draws that line for the whole country. It is a wall-to-wall, 10 m l
 - **EUDR screening:** the [web map](https://eudr-ghana.vercel.app) compares the 2025 tree crops with the EU's own 2020 forest map (JRC Global Forest Cover 2020, V4). It shows where tree crops sit on land that was forest at the EUDR cut-off date, split by the model's confidence.
 - **Confidence:** every pixel carries a calibrated confidence value, so users can see where the map can be trusted and where a field check is needed.
 
-The map is built with [TabPFN-3.5](https://huggingface.co/Prior-Labs/tabpfn_3_5) (Prior Labs) for the [TabPFN-3.5 Hackathon](https://platform.priorlabs.ai/hackathon-3.5). TabPFN-3.5 learns the entire classifier in context from 318 field polygons: one 1.6-second fit, with no gradient training and no tuning. It then labels 2.46 billion pixels of Google Satellite Embeddings. Under identical Leave-One-Polygon-Out cross-validation, it outperforms Random Forest, XGBoost, logistic regression and k-nearest neighbours on every accuracy metric.
+The map is built with [TabPFN-3.5](https://huggingface.co/Prior-Labs/tabpfn_3_5) (Prior Labs) for the [TabPFN-3.5 Hackathon](https://platform.priorlabs.ai/hackathon-3.5). TabPFN-3.5 learns the entire classifier in context from 318 labelled polygons: one 1.6-second fit, with no gradient training and no tuning. It then labels 2.46 billion pixels of Google Satellite Embeddings. Under identical Leave-One-Polygon-Out cross-validation, it outperforms Random Forest, XGBoost, logistic regression and k-nearest neighbours on every accuracy metric.
 
 [![Live map](https://img.shields.io/badge/live%20map-eudr--ghana.vercel.app-d03b3b)](https://eudr-ghana.vercel.app)
 ![Model](https://img.shields.io/badge/model-TabPFN--3.5-blue)
@@ -24,16 +24,16 @@ The map is built with [TabPFN-3.5](https://huggingface.co/Prior-Labs/tabpfn_3_5)
 ## Highlights
 
 - **Best of five classifiers under one protocol.** All models are scored by the same Leave-One-Polygon-Out runner. TabPFN-3.5 reaches **83.3% accuracy and 80.7% balanced accuracy**; the best baseline reaches 80.8% and 76.3%. It also has the lowest log loss (0.545 vs. 0.727) and Brier score (0.249 vs. 0.294).
-- **Strongest where field data is scarce.** Twelve of the 23 land-cover classes had only 3 to 9 field polygons each to learn from. TabPFN-3.5 recognises these rare classes as well as the common ones (**81%** vs. 80% recall), while the other models manage only 64-76% on them.
+- **Strongest where labelled data is scarce.** Twelve of the 23 land-cover classes had only 3 to 9 polygons each to learn from. TabPFN-3.5 recognises these rare classes as well as the common ones (**81%** vs. 80% recall), while the other models manage only 64-76% on them.
 - **A map that knows when it's unsure.** Every pixel comes with a confidence score you can trust. Where TabPFN-3.5 is confident (0.6 or more), the map was right **90%** of the time in testing; where it isn't, only about half the time. Users see at a glance which areas they can rely on and which to check in the field.
 - **National scale.** The map covers 238,836 km² of land at 10 m. It comes from 408 embedding tiles (~320 GB) with resumable multi-GPU inference.
-- **The training set is a 438 KB CSV.** [`data/polygon_means.csv`](data/polygon_means.csv) holds the model's entire training context, so [`quickstart.py`](quickstart.py) refits TabPFN-3.5 and classifies a 10 × 10 km area in about two minutes on one GPU. It needs neither the 615 MB training file nor the model file, and it reproduces the national prediction exactly for every one of the area's 1,048,576 pixels.
+- **The training set is a 437 KB CSV.** [`data/polygon_means.csv`](data/polygon_means.csv) holds the model's entire training context, so [`quickstart.py`](quickstart.py) refits TabPFN-3.5 and classifies a 10 × 10 km area in about two minutes on one GPU. It needs neither the 615 MB training file nor the model file, and it reproduces the national prediction exactly for every one of the area's 1,048,576 pixels.
 
 ## Why TabPFN-3.5
 
-Field data for land-cover mapping is scarce. Ground-truth polygons are expensive to collect, so national maps rest on a few hundred independent observations. TabPFN is designed for tabular datasets of this size.
+Labelled data for land-cover mapping is scarce. Reference polygons take time to collect, whether in the field or by careful interpretation of high-resolution imagery, so national maps rest on a few hundred independent observations. TabPFN is designed for tabular datasets of this size.
 
-- **The polygon is the unit of learning.** Pixels from one polygon are near-duplicates, so each polygon is collapsed to its mean embedding: one row per independent observation, 318 rows in total. TabPFN-3.5 fits this context in about a second.
+- **The polygon is the unit of learning.** Pixels from one polygon are near-duplicates, so each polygon is collapsed to its mean embedding: one row per independent observation, 318 rows in total. TabPFN-3.5 fits this context in 1.6 seconds.
 - **Every polygon is evaluated out of sample.** Each of the 318 folds is a fresh in-context fit on the other 317 polygons. That includes scoring all 440,208 raw pixels of the held-out polygons, and the whole evaluation takes 11.4 minutes on one H100.
 - **No segmentation network, no fine-tuning.** The Google Satellite Embeddings already summarise each 10 m pixel's spatial and temporal context in 64 numbers. TabPFN-3.5 turns 318 labelled rows of them into a national classifier, and every pixel is one row of a table.
 - **Probabilities you can use.** TabPFN-3.5's top-class probability tracks observed accuracy closely, so it can be published alongside the map as a confidence layer.
@@ -56,7 +56,7 @@ The baselines use fixed, standard settings, and TabPFN-3.5 uses its default chec
 
 ![TabPFN-3.5 vs. baselines](docs/model_comparison.png)
 
-TabPFN-3.5 ranks first on every accuracy metric and on both proper scoring rules (log loss and Brier score). Its pixel-level calibration error is on par with the best baseline's (0.040 vs. 0.038 for XGBoost), and it is clearly better calibrated than Random Forest (0.251). Its advantage is largest on the metrics that weight classes equally, such as balanced accuracy and per-class raw-pixel accuracy: rare classes are where small-data learning matters most.
+TabPFN-3.5 ranks first on every accuracy metric and on both proper scoring rules (log loss and Brier score). Its pixel-level calibration error, with each polygon weighted equally, is on par with the best baseline's (0.040 vs. 0.038 for XGBoost), and it is clearly better calibrated than Random Forest (0.251). Its advantage is largest on the metrics that weight classes equally, such as balanced accuracy and per-class raw-pixel accuracy: rare classes are where small-data learning matters most.
 
 **Rare classes.** Mean recall on the 12 classes with fewer than 10 polygons, against the 11 larger classes:
 
@@ -135,9 +135,9 @@ These areas are pixel counts of the classified map, not design-based area estima
 - **Highest confidence:** water bodies, forest reserves and large urban areas.
 - **Lowest confidence:** mosaic landscapes where crops, fallow, shrubland and savannah interleave.
 
-Across the national map, mean confidence is 0.58 and 56% of pixels fall below 0.6. That figure comes from the 8.5 million pixels displayed on the confidence map. On held-out pixels of the field polygons, by contrast, only 22% fall below 0.6. The training polygons are clean, single-class examples, while the wall-to-wall map also contains mixed pixels, transitions and land covers that 318 polygons cannot fully represent.
+Across the national map, mean confidence is 0.58 and 56% of pixels fall below 0.6. That figure comes from the 8.5 million pixels displayed on the confidence map. On held-out pixels of the labelled polygons, by contrast, only 22% fall below 0.6. The training polygons are clean, single-class examples, while the wall-to-wall map also contains mixed pixels, transitions and land covers that 318 polygons cannot fully represent.
 
-The LOO accuracies above therefore describe pixels like those in the training polygons. The confidence layer shows where the map departs from them, and those are the places where additional field polygons would improve it most.
+The LOO accuracies above therefore describe pixels like those in the training polygons. The confidence layer shows where the map departs from them, and those are the places where additional labelled polygons would improve it most.
 
 ## Web map
 
@@ -172,7 +172,7 @@ The script refits TabPFN-3.5 on `data/polygon_means.csv`, with the national mode
 - confidence as a GeoTIFF
 - a side-by-side preview PNG
 
-On this area the quick-start reproduces the national prediction exactly: all 1,048,576 pixels receive the same class and the same confidence value as in `predicted_classcode.tif` and `predicted_confidence.tif`.
+On this area the quick-start reproduces the national prediction exactly: all 1,048,576 pixels receive the same class as in `predicted_classcode.tif`, which `--compare-with` checks.
 
 Options:
 - **Another area:** `--images-dir DIR --center LON LAT --size N` cuts an area from embedding tiles in `DIR`. Only the tiles covering the area are needed; the demo area, for example, lies in `AEF_GHANA_2025-0000055296-0000015360.tif` and `AEF_GHANA_2025-0000058368-0000015360.tif`.
@@ -250,8 +250,10 @@ Images/*.tif ──────────▶ Predict_TabPFN35_PolygonLevel.ipy
 
 > 📦 The input data (`Images/` embedding tiles, ~320 GB, and `Training_Samples.csv`, ~615 MB), the quick-start area (`demo/demo_aoi_dunkwa.tif`, 417 MB) and the full-resolution outputs are in this public Google Drive folder: [Google Drive folder](https://drive.google.com/drive/folders/1oWkuMQz3cXYv_grwohInPzaSEHyqtjLC?usp=sharing)
 
-- **Field polygons:** the 318 single-class polygons were digitized by the author in Google Earth Pro.
-  - The embedding values of every pixel inside them were extracted in Google Earth Engine.
+- **Reference polygons:** 318 single-class polygons covering 23 classes.
+  - Polygons for every class were digitised on screen by the author from high-resolution imagery in Google Earth Pro.
+  - Part of the cocoa class comes from a spatial sample of the CERSGIS [Reference Dataset for Land Use Change Mapping in Ghana's Cocoa Landscape (2024–2025)](https://doi.org/10.5281/zenodo.16579443) (CC BY 4.0).
+  - The embedding values of every pixel inside the polygons were extracted in Google Earth Engine.
   - Some classes occur only in particular regions; mangroves and salt pans, for example, are coastal. Their polygons are therefore geographically concentrated.
 - **`Training_Samples.csv`:** 440,208 pixels from those polygons.
   - Columns: `system:index` (Earth Engine id; the polygon id followed by a pixel counter), `A00`-`A63` (embedding), `Name`, `code`, `.geo` (pixel location).
@@ -281,6 +283,7 @@ Images/*.tif ──────────▶ Predict_TabPFN35_PolygonLevel.ipy
 - **[TabPFN](https://github.com/PriorLabs/TabPFN)** by Prior Labs, the tabular foundation model behind all classification in this project ([TabPFN-3.5 model card](https://huggingface.co/Prior-Labs/tabpfn_3_5)). Hollmann, N., Müller, S., Purucker, L. *et al.* "Accurate predictions on small data with a tabular foundation model." *Nature* 637, 319-326 (2025).
 - **[TGI RAILS](https://docs.ncsa.illinois.edu/systems/tgirails/).** This research used the TGI RAILS advanced compute and data resource, which is supported by the National Science Foundation (award OAC-2232860) and the Taylor Geospatial Institute. All GPU compute (NVIDIA H100) for model evaluation and national-scale inference ran on TGI RAILS.
 - **[Google Satellite Embeddings](https://developers.google.com/earth-engine/datasets/catalog/GOOGLE_SATELLITE_EMBEDDING_V1_ANNUAL)** (AlphaEarth Foundations, Google DeepMind / Google Earth Engine), the 64-dimensional annual embedding dataset used as model input.
+- **[CERSGIS](https://doi.org/10.5281/zenodo.16579443)** (Centre for Remote Sensing and Geographic Information Services), *Reference Dataset for Land Use Change Mapping in Ghana's Cocoa Landscape (2024–2025)*, Zenodo, CC BY 4.0: the source of part of the cocoa reference polygons.
 - **[Natural Earth](https://www.naturalearthdata.com/)**, public-domain country boundaries for the cartographic map.
 - **[EC JRC Global Forest Cover 2020](https://developers.google.com/earth-engine/datasets/catalog/JRC_GFC2020_V4)** (version 4), the EU's 2020 forest baseline used in the web map.
 - **Esri** basemaps in the web map: Light and Dark Gray Canvas (Esri, HERE, Garmin, OpenStreetMap contributors) and World Imagery (Esri, Vantor, Earthstar Geographics).
