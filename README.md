@@ -13,7 +13,7 @@ This project draws that line for the whole country. It is a wall-to-wall, 10 m l
 - **EUDR screening:** the [web map](https://eudr-ghana.vercel.app) compares the 2025 tree crops with the EU's own 2020 forest map (JRC Global Forest Cover 2020, V4). It shows where tree crops sit on land that was forest at the EUDR cut-off date, split by the model's confidence.
 - **Confidence:** every pixel carries a calibrated confidence value, so users can see where the map can be trusted and where a field check is needed.
 
-The map is built with [TabPFN-3.5](https://huggingface.co/Prior-Labs/tabpfn_3_5) (Prior Labs) for the [TabPFN-3.5 Hackathon](https://platform.priorlabs.ai/hackathon-3.5). TabPFN-3.5 learns the entire classifier in context from 318 labelled polygons: one 1.6-second fit, with no gradient training and no tuning. It then labels 2.46 billion pixels of Google Satellite Embeddings. Under identical Leave-One-Polygon-Out cross-validation, it outperforms Random Forest, XGBoost, logistic regression and k-nearest neighbours on every accuracy metric.
+The map is built with [TabPFN-3.5](https://huggingface.co/Prior-Labs/tabpfn_3_5) (Prior Labs) for the [TabPFN-3.5 Hackathon](https://platform.priorlabs.ai/hackathon-3.5). TabPFN-3.5 learns the entire classifier in context from 318 labelled polygons: one 1.6-second fit, with no gradient training and no tuning. It then labels 2.46 billion pixels of Google Satellite Embeddings. Under identical Leave-One-Polygon-Out cross-validation, its probabilities beat those of Random Forest, XGBoost, logistic regression and k-nearest neighbours (25% lower log loss than the best of them), and it ranks first on every accuracy metric.
 
 [![Live map](https://img.shields.io/badge/live%20map-eudr--ghana.vercel.app-d03b3b)](https://eudr-ghana.vercel.app)
 ![Model](https://img.shields.io/badge/model-TabPFN--3.5-blue)
@@ -24,9 +24,10 @@ The map is built with [TabPFN-3.5](https://huggingface.co/Prior-Labs/tabpfn_3_5)
 
 ## Highlights
 
-- **Best of five classifiers under one protocol.** All models are scored by the same Leave-One-Polygon-Out runner. TabPFN-3.5 reaches **83.3% accuracy and 80.7% balanced accuracy**; the best baseline reaches 80.8% and 76.3%. It also has the lowest log loss (0.545 vs. 0.727) and Brier score (0.249 vs. 0.294).
-- **Strongest where labelled data is scarce.** Twelve of the 23 land-cover classes had only 3 to 9 polygons each to learn from. TabPFN-3.5 recognises these rare classes as well as the common ones (**81%** vs. 80% recall), while the other models manage only 64-76% on them.
+- **The best probabilities of five classifiers.** All models are scored by the same Leave-One-Polygon-Out runner. TabPFN-3.5's predicted probabilities have a **25% lower log loss** than the best baseline's (0.545 vs. 0.727) and the lowest Brier score (0.249 vs. 0.294). These probabilities become the map's confidence layer.
 - **A map that knows when it's unsure.** Every pixel comes with a confidence score you can trust. Where TabPFN-3.5 is confident (0.6 or more), the map was right **90%** of the time in testing; where it isn't, only about half the time. Users see at a glance which areas they can rely on and which to check in the field.
+- **First on every accuracy metric.** TabPFN-3.5 reaches 83.3% accuracy and 80.7% balanced accuracy; the best baseline reaches 80.8% and 76.3%.
+- **Strongest where labelled data is scarce.** Twelve of the 23 land-cover classes had only 3 to 9 polygons each to learn from. TabPFN-3.5 recognises these rare classes as well as the common ones (**81%** vs. 80% recall); the other models reach 64-76% on them.
 - **National scale.** The map covers 238,836 km² of land at 10 m. It comes from 408 embedding tiles (~320 GB) with resumable multi-GPU inference.
 - **The training set is a 437 KB CSV.** [`data/polygon_means.csv`](data/polygon_means.csv) holds the model's entire training context, so [`quickstart.py`](quickstart.py) refits TabPFN-3.5 and classifies a 10 × 10 km area in about two minutes on one GPU. It needs neither the 615 MB training file nor the model file, and it reproduces the national prediction exactly for every one of the area's 1,048,576 pixels.
 
