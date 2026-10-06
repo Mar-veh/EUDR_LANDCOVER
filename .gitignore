@@ -1,0 +1,34 @@
+# Secrets
+.env
+
+# Large input data -- distributed via the Google Drive link in README.md
+Images/
+Training_Samples.csv
+
+# Quick-start demo area -- distributed via the Google Drive link in README.md
+demo/*.tif
+
+# Generated outputs. Small result tables and evaluation figures are kept in the
+# repository; the model, rasters, logs and large maps are distributed via the
+# Google Drive link in README.md.
+outputs_tabpfn35_polygon/*
+!outputs_tabpfn35_polygon/*.csv
+!outputs_tabpfn35_polygon/*.json
+!outputs_tabpfn35_polygon/*.png
+predictions_tabpfn35_polygon/*
+!predictions_tabpfn35_polygon/*.csv
+quickstart_output/
+*.joblib
+*.partial
+
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Editors and OS
+.vscode/
+.idea/
+.DS_Store
+

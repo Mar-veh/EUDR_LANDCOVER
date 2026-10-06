@@ -1,0 +1,82 @@
+{
+ "model": "TabPFN-3.5",
+ "level": "raw_pixel_polygon_weighted",
+ "level_description": "every raw pixel of every held-out polygon, each polygon weighted equally",
+ "threshold": 0.6,
+ "accuracy_at_or_above": 0.9008656564218845,
+ "accuracy_below": 0.5172798683100712,
+ "share_below": 0.22151799038980607,
+ "ece": 0.039688490179550055,
+ "bins": [
+  {
+   "low": 0.0,
+   "high": 0.1,
+   "share": 0.0,
+   "mean_confidence": null,
+   "accuracy": null
+  },
+  {
+   "low": 0.1,
+   "high": 0.2,
+   "share": 0.001827409888378605,
+   "mean_confidence": 0.17615644224207838,
+   "accuracy": 0.2265394487926265
+  },
+  {
+   "low": 0.2,
+   "high": 0.3,
+   "share": 0.016566686407823748,
+   "mean_confidence": 0.26436398447618725,
+   "accuracy": 0.31180175785252223
+  },
+  {
+   "low": 0.3,
+   "high": 0.4,
+   "share": 0.04661285429748186,
+   "mean_confidence": 0.35474746368615345,
+   "accuracy": 0.3834013881062586
+  },
+  {
+   "low": 0.4,
+   "high": 0.5,
+   "share": 0.07235160121526295,
+   "mean_confidence": 0.4520312060071606,
+   "accuracy": 0.5199081913214539
+  },
+  {
+   "low": 0.5,
+   "high": 0.6,
+   "share": 0.08415943858129438,
+   "mean_confidence": 0.5511283673368453,
+   "accuracy": 0.6359318961573298
+  },
+  {
+   "low": 0.6,
+   "high": 0.7,
+   "share": 0.0907823955016676,
+   "mean_confidence": 0.6527375876724857,
+   "accuracy": 0.7316815080245599
+  },
+  {
+   "low": 0.7,
+   "high": 0.8,
+   "share": 0.11047653979014921,
+   "mean_confidence": 0.751591055635595,
+   "accuracy": 0.8385910636174435
+  },
+  {
+   "low": 0.8,
+   "high": 0.9,
+   "share": 0.15225334350515413,
+   "mean_confidence": 0.8549512835596185,
+   "accuracy": 0.8935359092689039
+  },
+  {
+   "low": 0.9,
+   "high": 1.0,
+   "share": 0.42496973081278744,
+   "mean_confidence": 0.9623496869549722,
+   "accuracy": 0.9558220465357951
+  }
+ ]
+}

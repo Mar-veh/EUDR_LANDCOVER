@@ -1,0 +1,450 @@
+/* Ghana EUDR Tree-Crop Map
+   Map colours (--map-*) match the Earth Engine tile palettes exactly and stay
+   the same in light and dark mode. */
+
+:root {
+  color-scheme: light;
+  --page: #f9f9f7;
+  --surface: #fcfcfb;
+  --surface-2: #f1f0ec;
+  --ink: #0b0b0b;
+  --ink-2: #52514e;
+  --border: rgba(11, 11, 11, 0.10);
+  --border-strong: rgba(11, 11, 11, 0.22);
+  --accent: #2a78d6;
+  --shadow: 0 1px 2px rgba(11, 11, 11, 0.06), 0 8px 24px rgba(11, 11, 11, 0.10);
+  --scrim: rgba(11, 11, 11, 0.35);
+  --critical: #d03b3b;
+
+  --map-high: #d03b3b;
+  --map-low: #fab219;
+  --map-forest: #00441b;
+
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --page: #0d0d0d;
+    --surface: #1a1a19;
+    --surface-2: #2a2a28;
+    --ink: #ffffff;
+    --ink-2: #c3c2b7;
+    --border: rgba(255, 255, 255, 0.12);
+    --border-strong: rgba(255, 255, 255, 0.26);
+    --accent: #3987e5;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.45);
+    --scrim: rgba(0, 0, 0, 0.55);
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+html, body { height: 100%; margin: 0; }
+body {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font: 14px/1.45 var(--font);
+  color: var(--ink);
+  background: var(--page);
+}
+h1, h2, h3, p { margin: 0; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.small { font-size: 12px; color: var(--ink-2); }
+
+.btn-quiet {
+  height: 34px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ink-2);
+  font-weight: 550;
+  cursor: pointer;
+}
+.btn-quiet:hover { background: var(--surface-2); color: var(--ink); }
+.btn-primary {
+  height: 34px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-primary:hover { filter: brightness(1.08); }
+.label-short { display: none; }
+
+/* ---------- Top bar ---------- */
+
+.topbar {
+  z-index: 1100;
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: 56px;
+  padding: 0 12px 0 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.brand-mark { display: block; width: 28px; height: 28px; flex: none; }
+.brand h1 { font-size: 15px; font-weight: 650; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.brand-sub { color: var(--ink-2); font-size: 12px; }
+.topbar-actions { display: flex; flex: none; gap: 2px; }
+
+/* ---------- Map and floating controls ---------- */
+
+.map-wrap { position: relative; flex: 1; min-height: 0; }
+#map { position: absolute; inset: 0; background: var(--page); }
+
+.panel {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 800;
+  width: 340px;
+  max-height: calc(100% - 32px);
+  overflow-y: auto;
+  padding: 14px 16px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+/* Segmented switch, used for the layer and the background. */
+.switch {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 9px;
+  background: var(--surface-2);
+}
+.switch button {
+  flex: 1;
+  min-height: 32px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--ink-2);
+  font-weight: 550;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.switch button:hover { color: var(--ink); }
+.switch button[aria-pressed="true"] {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.14), 0 0 0 1px var(--border);
+}
+
+.panel-text { margin: 14px 0 12px; color: var(--ink-2); }
+
+/* On/off switch (fade uncertain land cover). */
+.toggle { display: flex; align-items: flex-start; gap: 10px; margin: 0 0 14px; cursor: pointer; }
+.toggle input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.toggle-track {
+  position: relative;
+  width: 34px;
+  height: 20px;
+  flex: none;
+  margin-top: 1px;
+  border-radius: 10px;
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+  transition: background 0.15s;
+}
+.toggle-track::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  transition: transform 0.15s;
+}
+.toggle input:checked + .toggle-track { background: var(--accent); box-shadow: none; }
+.toggle input:checked + .toggle-track::after { transform: translateX(14px); }
+.toggle input:focus-visible + .toggle-track { outline: 2px solid var(--accent); outline-offset: 2px; }
+.toggle small { display: block; margin-top: 2px; color: var(--ink-2); font-size: 12px; }
+
+/* Transparency slider (land cover). */
+.slider { display: grid; gap: 4px; margin: 0 0 14px; }
+.slider-head { display: flex; align-items: baseline; justify-content: space-between; }
+.slider-value { color: var(--ink-2); font-size: 13px; font-variant-numeric: tabular-nums; }
+.slider small { color: var(--ink-2); font-size: 12px; }
+.slider input {
+  width: 100%;
+  height: 20px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  appearance: none;
+}
+.slider input::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--border); }
+.slider input::-moz-range-track { height: 4px; border-radius: 2px; background: var(--surface-2); }
+.slider input::-webkit-slider-thumb {
+  width: 18px;
+  height: 18px;
+  margin-top: -7px;
+  border: 2px solid var(--surface);
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+  appearance: none;
+}
+.slider input::-moz-range-thumb { width: 14px; height: 14px; border: 2px solid var(--surface); border-radius: 50%; background: var(--accent); }
+.slider input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.headline { margin: -4px 0 12px; font-size: 13px; }
+.headline b { font-size: 20px; font-weight: 650; color: var(--ink); }
+
+.legend { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.legend li { display: flex; align-items: flex-start; gap: 10px; }
+.legend small { display: block; color: var(--ink-2); font-size: 12px; }
+.swatch {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  margin-top: 1px;
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+}
+.swatch.is-tint { opacity: 0.55; }
+@media (prefers-color-scheme: dark) {
+  .swatch { box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.28); }
+}
+
+.legend-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12.5px;
+}
+.legend-grid li { display: flex; align-items: center; gap: 8px; min-width: 0; line-height: 1.25; }
+.legend-grid .swatch { width: 12px; height: 12px; margin: 0; border-radius: 3px; }
+.legend-grid .is-key { font-weight: 650; }
+
+.ramp-bar {
+  height: 12px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #cde2fb, #9ec5f4, #6da7ec, #3987e5, #256abf, #184f95, #0d366b);
+}
+.ramp-labels { display: flex; justify-content: space-between; margin-top: 6px; color: var(--ink-2); font-size: 12px; }
+
+.panel-hint {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  color: var(--ink-2);
+  font-size: 12.5px;
+}
+
+.basemap-switch {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 800;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+.basemap-switch button[aria-pressed="true"] { background: var(--surface-2); box-shadow: none; }
+
+.notice {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  z-index: 850;
+  max-width: min(460px, calc(100% - 32px));
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--critical);
+  border-radius: 10px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  transform: translateX(-50%);
+  font-size: 13px;
+}
+
+.loading {
+  position: absolute;
+  left: 50%;
+  bottom: 24px;
+  z-index: 800;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  transform: translateX(-50%);
+  font-size: 12.5px;
+}
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--surface-2);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  z-index: 2100;
+  max-width: min(520px, calc(100% - 32px));
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--critical);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  transform: translateX(-50%);
+  font-size: 13px;
+}
+
+/* ---------- Leaflet and the pixel popup ---------- */
+
+.leaflet-container { font: 13px/1.4 var(--font); background: var(--page); }
+.leaflet-container a { color: var(--accent); }
+.leaflet-popup-content-wrapper, .leaflet-popup-tip { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
+.leaflet-popup-content-wrapper { border-radius: 12px; }
+.leaflet-popup-content { margin: 14px 16px; min-width: 230px; }
+.leaflet-container a.leaflet-popup-close-button { color: var(--ink-2); }
+.leaflet-bar { border: 1px solid var(--border) !important; box-shadow: var(--shadow) !important; }
+.leaflet-bar a, .leaflet-bar a:hover { background: var(--surface); color: var(--ink); border-bottom-color: var(--border); }
+.leaflet-control-attribution { background: color-mix(in srgb, var(--surface) 82%, transparent) !important; color: var(--ink-2); font-size: 11px; }
+
+/* Ruler scale: a line with ticks, under the zoom buttons. */
+.ruler-scale {
+  padding: 5px 22px 6px 12px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--surface) 85%, transparent);
+  box-shadow: 0 0 0 1px var(--border);
+  color: var(--ink);
+  font-size: 11px;
+  line-height: 1;
+  pointer-events: none;
+}
+.ruler-labels { position: relative; height: 13px; }
+.ruler-labels span { position: absolute; top: 0; transform: translateX(-50%); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.ruler-line { position: relative; height: 7px; border-bottom: 2px solid currentColor; }
+.ruler-line i { position: absolute; bottom: -2px; width: 2px; height: 9px; margin-left: -1px; background: currentColor; }
+.ruler-line i.minor { height: 5px; }
+
+.pixel-title { display: flex; align-items: center; gap: 8px; padding-right: 16px; font-size: 14px; font-weight: 650; }
+.pixel-title .swatch { margin: 0; }
+.pixel-lines { display: grid; gap: 4px; margin: 10px 0 0; padding: 0; list-style: none; }
+.pixel-lines li { display: flex; gap: 8px; }
+.pixel-lines span:first-child { width: 78px; flex: none; color: var(--ink-2); }
+.pixel-where { margin-top: 10px; color: var(--ink-2); font-size: 11.5px; font-variant-numeric: tabular-nums; }
+.status-icon { display: inline-grid; place-items: center; width: 18px; height: 18px; flex: none; }
+.status-icon svg { width: 18px; height: 18px; }
+
+/* ---------- Guided tour ---------- */
+
+.tour { position: fixed; inset: 0; z-index: 3000; }
+.tour-blocker { position: absolute; inset: 0; }
+.tour-spot {
+  position: fixed;
+  border-radius: 12px;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.9), 0 0 0 9999px rgba(11, 11, 11, 0.55);
+  pointer-events: none;
+  transition: left 0.25s, top 0.25s, width 0.25s, height 0.25s;
+}
+.tour-card {
+  position: fixed;
+  width: min(340px, calc(100vw - 16px));
+  padding: 16px 16px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  transition: left 0.25s, top 0.25s;
+}
+.tour-count { color: var(--ink-2); font-size: 12px; }
+.tour-card h2 { margin: 2px 0 6px; font-size: 16px; font-weight: 650; }
+.tour-actions { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 14px; }
+.tour-nav { display: flex; gap: 6px; }
+.tour-invite {
+  position: absolute;
+  left: 50%;
+  bottom: 28px;
+  z-index: 900;
+  width: min(380px, calc(100% - 32px));
+  padding: 14px 16px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  transform: translateX(-50%);
+}
+.tour-invite .tour-actions { justify-content: flex-end; margin-top: 10px; }
+
+/* ---------- About dialog ---------- */
+
+dialog#about {
+  width: min(600px, calc(100% - 32px));
+  max-height: calc(100% - 48px);
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+}
+dialog#about::backdrop { background: var(--scrim); }
+.about-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 12px 10px 20px; border-bottom: 1px solid var(--border); }
+.about-head h2 { font-size: 17px; font-weight: 650; }
+.about-body { padding: 16px 20px 20px; }
+.about-body .lead { font-size: 15px; }
+.about-body h3 { margin: 18px 0 6px; font-size: 13px; font-weight: 650; }
+.about-body ul { margin: 0; padding-left: 18px; }
+.about-body li + li { margin-top: 6px; }
+.about-body p + p { margin-top: 12px; }
+
+/* ---------- Phones: the panel docks at the bottom ---------- */
+
+@media (max-width: 640px) {
+  .brand-sub { display: none; }
+  .label-long { display: none; }
+  .label-short { display: inline; }
+  .tour-invite { top: 56px; bottom: auto; }
+  .panel {
+    top: auto;
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    width: auto;
+    max-height: 48%;
+  }
+  .switch button { padding: 0 6px; font-size: 13px; }
+  .basemap-switch { top: 8px; right: 8px; }
+  .notice { top: 56px; }
+  .loading { bottom: auto; top: 56px; }
+  .leaflet-bottom { bottom: calc(var(--panel-h, 0px) + 12px); }
+  .ruler-scale { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner { animation-duration: 2s; }
+  .tour-spot, .tour-card, .toggle-track, .toggle-track::after { transition: none; }
+}

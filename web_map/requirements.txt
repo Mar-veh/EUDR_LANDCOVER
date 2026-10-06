@@ -1,0 +1,6 @@
+# Backend for the web map (not linked to the page yet).
+earthengine-api>=1.5
+fastapi>=0.115
+uvicorn>=0.30
+python-dotenv>=1.0
+openpyxl>=3.1          # scripts/build_tables.py reads new_class.xlsx

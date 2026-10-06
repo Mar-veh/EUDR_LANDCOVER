@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ghana EUDR Tree-Crop Map</title>
+  <meta name="description" content="Where Ghana's 2025 tree crops sit on land that was forest in 2020, the EUDR cut-off. 10 m land cover from TabPFN-3.5.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2300441b'/%3E%3Cpath d='M8 24C8 14.5 14.5 8 24 8c0 9.5-6.5 16-16 16z' fill='%23fff'/%3E%3Cpath d='M8.5 23.5 19 13' fill='none' stroke='%2300441b' stroke-width='1.8' stroke-linecap='round'/%3E%3Ccircle cx='24.5' cy='24.5' r='4' fill='%23d03b3b' stroke='%2300441b' stroke-width='2'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+  <link rel="stylesheet" href="css/app.css">
+  <script defer src="vendor/leaflet/leaflet.js"></script>
+  <script defer src="data/tables.js"></script>
+  <script defer src="js/util.js"></script>
+  <script defer src="js/source.js"></script>
+  <script defer src="js/map.js"></script>
+  <script defer src="js/panel.js"></script>
+  <script defer src="js/inspector.js"></script>
+  <script defer src="js/tour.js"></script>
+  <script defer src="js/app.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#00441b"/><path d="M8 24C8 14.5 14.5 8 24 8c0 9.5-6.5 16-16 16z" fill="#fff"/><path d="M8.5 23.5 19 13" fill="none" stroke="#00441b" stroke-width="1.8" stroke-linecap="round"/><circle cx="24.5" cy="24.5" r="4" fill="#d03b3b" stroke="#00441b" stroke-width="2"/></svg>
+      <div>
+        <h1>Ghana EUDR Tree-Crop Map</h1>
+        <p class="brand-sub">Tree crops on land that was forest in 2020</p>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn-quiet" id="tour-open" type="button"><span class="label-long">Show me around</span><span class="label-short">Tour</span></button>
+      <button class="btn-quiet" id="about-open" type="button">About</button>
+    </div>
+  </header>
+
+  <main class="map-wrap">
+    <div id="map"></div>
+
+    <section class="panel" aria-label="Map layer and legend">
+      <div class="switch" role="group" aria-label="Map layer">
+        <button type="button" data-mode="eudr" aria-pressed="true">EUDR overlap</button>
+        <button type="button" data-mode="landcover" aria-pressed="false">Land cover</button>
+      </div>
+      <div id="panel-body"></div>
+      <p class="panel-hint">Click the map to see what is at that spot.</p>
+    </section>
+
+    <div class="switch basemap-switch" role="group" aria-label="Background">
+      <button type="button" data-basemap="streets" aria-pressed="true">Map</button>
+      <button type="button" data-basemap="satellite" aria-pressed="false">Satellite</button>
+    </div>
+
+    <p class="notice" id="notice" role="status" hidden></p>
+    <p class="loading" id="loading" role="status" hidden><span class="spinner" aria-hidden="true"></span>Loading map…</p>
+  </main>
+
+  <div class="toast" id="toast" role="alert" hidden></div>
+
+  <dialog id="about" aria-labelledby="about-title">
+    <div class="about-head">
+      <h2 id="about-title">About this map</h2>
+      <button class="btn-quiet" id="about-close" type="button">Close</button>
+    </div>
+    <div class="about-body">
+      <p class="lead">The EU Deforestation Regulation (EUDR) only lets cocoa, oil palm and rubber onto the EU market
+        if they were not grown on land deforested after <b>31 December 2020</b>. This map shows where Ghana's tree
+        crops in 2025 sit on land that was forest on that date.</p>
+
+      <h3>How it is made</h3>
+      <ul>
+        <li><b>Tree crops in 2025</b> come from a 10 m land-cover map of Ghana made with TabPFN-3.5 (Prior Labs) from
+          Google Satellite Embeddings. Cocoa, cashew, rubber, oil palm and mango are grouped as tree crops.</li>
+        <li><b>Forest in 2020</b> is the EU's own reference map, JRC Global Forest Cover 2020 (version 4). It counts
+          land with at least 10% tree cover as forest, so it includes woodland savannah in the north.</li>
+        <li><b>Confidence</b> is how sure the model is about each pixel. Where it is 0.6 or more, the map was right
+          90% of the time in testing; below 0.6, about half the time. That is why overlaps are shown in two colours,
+          and why the land-cover map can fade the areas where the model is unsure.</li>
+      </ul>
+
+      <h3>Keep in mind</h3>
+      <p>This map helps decide where to look; it does not prove compliance or deforestation. The 2020 forest map can
+        count shaded cocoa as forest, and the 2025 map can mix up tree crops and forest. Check flagged areas on the
+        ground.</p>
+
+      <p class="small">Land-cover model and map: Marvin Ayeh, for the TabPFN-3.5 Hackathon. Map tiles: Google Earth
+        Engine and Esri.</p>
+    </div>
+  </dialog>
+</body>
+</html>
