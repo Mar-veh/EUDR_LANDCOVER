@@ -15,6 +15,15 @@ Then open http://127.0.0.1:8000.
 
 The server reads `PRIVATE_KEY`, `SERVICE_EMAIL`, `PROJECT_ID`, `PREDICTED_CLASSCODE` and `PREDICTED_CONFIDENCE` from the repository's `.env`. The key never reaches the browser. Opening `public/index.html` straight from disk only shows a "map server not reachable" notice.
 
+## Deploy on Vercel
+
+1. In Vercel, import the GitHub repository and choose **Import single project** next to `web_map` (FastAPI). The Root Directory becomes `web_map`.
+2. Under Environment Variables, add `PROJECT_ID`, `SERVICE_EMAIL`, `PRIVATE_KEY`, `PREDICTED_CLASSCODE` and `PREDICTED_CONFIDENCE`, copied from `.env`. The private key can be pasted as it appears there, quotes and `
+` included.
+3. Deploy. Vercel serves `public/` from its CDN and runs the FastAPI app in `app/main.py` for `/api/...`.
+
+Every visitor's map tiles and pixel clicks are computed by Earth Engine under the project in `PROJECT_ID`.
+
 ## What the portal does
 
 A full-screen map with one small panel. The panel switches between two layers and shows a one-line explanation and a legend:
@@ -49,6 +58,6 @@ A national figure for the EUDR panel ("X ha of tree crop in Ghana is on 2020 for
 ```
 app/                    FastAPI backend: Earth Engine login, layers, pixel inspector
 public/                 the page (index.html, css/, js/, data/tables.js, vendor/leaflet/)
-scripts/build_tables.py rebuilds public/data/ from new_class.xlsx, color_code.txt and the CSVs
+scripts/build_tables.py rebuilds app/data/ and public/data/tables.js from new_class.xlsx, color_code.txt and the CSVs
 scripts/district_stats.py   national, regional and district totals (batch export, needs approval)
 ```

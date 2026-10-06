@@ -11,11 +11,11 @@ import mimetypes
 
 import ee
 from fastapi import FastAPI, HTTPException, Query
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from . import analysis, layers
-from .config import PUBLIC_DIR, settings
+from .config import ON_VERCEL, PUBLIC_DIR, settings
 
 # Windows can map .js to text/plain in the registry; browsers then refuse ES modules.
 mimetypes.add_type("text/javascript", ".js")
@@ -86,4 +86,10 @@ def get_point(
     return analysis.point_info(lon, lat, _threshold(threshold))
 
 
-app.mount("/", StaticFiles(directory=PUBLIC_DIR, html=True), name="site")
+if ON_VERCEL:
+    # Vercel serves public/ from its CDN at the root paths; send a bare "/" to the page.
+    @app.get("/", include_in_schema=False)
+    def home():
+        return RedirectResponse("/index.html")
+else:
+    app.mount("/", StaticFiles(directory=PUBLIC_DIR, html=True), name="site")
